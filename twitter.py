@@ -2,7 +2,7 @@ import requests
 
 # Generate tweet in a given format
 def create_tweet(response):
-    return "{}\nTemperatura: {} °C\nUmidade: {}%\nVento: {} m/s".format(
+    return "{}\n🌡️ Temperatura: {} °C\n💧 Umidade: {}%\n💨 Vento: {} m/s".format(
                 response["weather"][0]["description"].capitalize(), 
                 response["main"]["temp"], 
                 response["main"]["humidity"], 

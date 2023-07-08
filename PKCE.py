@@ -3,6 +3,7 @@ import hashlib
 import re
 import os
 
+
 # Generate code verifier (43 characters string of letters and numbers url-safe base64 encoded)
 def create_code_verifier():
     return re.sub("[^a-zA-Z0-9]+", "", base64.urlsafe_b64encode(os.urandom(30)).decode("utf-8"))
