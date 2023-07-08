@@ -2,7 +2,7 @@ name: tweet
 
 on:
   schedule:
-    - cron: '0 * * * *' # (00:00, 01:00, 02:00...)
+    - cron: '50 * * * *' # (00:00, 01:00, 02:00...)
 
 env:
   OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
