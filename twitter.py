@@ -1,13 +1,36 @@
 import requests
+import time
 
 # Generate tweet in a given format
 def create_tweet(response):
+    weather = response["weather"][0]["main"]
+    current_time = response["dt"] + response["timezone"]
+
     return "{}\n🌡️ Temperatura: {} °C\n💧 Umidade: {}%\n💨 Vento: {} m/s".format(
-                response["weather"][0]["description"].capitalize(), 
+                get_emoji(weather, current_time) + response["weather"][0]["description"].capitalize(), 
                 response["main"]["temp"], 
                 response["main"]["humidity"], 
                 response["wind"]["speed"]
             )
+
+
+# Return an emoji related to the weather condition
+def get_emoji(weather, current_time):
+    mapping = {
+        "Thunderstorm": "🌩️",
+        "Drizzle": "🌧️",
+        "Rain": "🌧️",
+        "Snow": "🌨️",
+        "Clouds": "☁️"
+    }
+
+    isDay = gmtime(current_time) in range(6, 18)
+
+    if weather in mapping.keys():
+        return mapping[weather]
+    elif weather == "Clear":
+        return "☀️" if isDay else "🌑"
+    return "🌫️"
 
 
 # Post a tweet
