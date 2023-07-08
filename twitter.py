@@ -7,7 +7,7 @@ def create_tweet(response):
     current_time = response["dt"] + response["timezone"]
 
     return "{}\n🌡️ Temperatura: {} °C\n💧 Umidade: {}%\n💨 Vento: {} m/s".format(
-                get_emoji(weather, current_time) + response["weather"][0]["description"].capitalize(), 
+                get_emoji(weather, current_time) + " " + response["weather"][0]["description"].capitalize(), 
                 response["main"]["temp"], 
                 response["main"]["humidity"], 
                 response["wind"]["speed"]
@@ -24,7 +24,7 @@ def get_emoji(weather, current_time):
         "Clouds": "☁️"
     }
 
-    isDay = gmtime(current_time) in range(6, 18)
+    isDay = time.gmtime(current_time) in range(6, 18)
 
     if weather in mapping.keys():
         return mapping[weather]
