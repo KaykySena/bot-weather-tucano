@@ -15,7 +15,7 @@ from twitter import create_tweet, post_tweet
 
 # Local development
 # Initialize environment variables
-# load_dotenv()
+#load_dotenv()
 
 # Write credentials to credentials.json file
 with open("credentials.json", "w") as file:
