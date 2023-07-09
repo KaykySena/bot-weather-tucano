@@ -12,67 +12,68 @@ from twitter import create_tweet, post_tweet
 #from dotenv import load_dotenv
 
 import requests
-from requests_oauthlib import OAuth2Session, TokenUpdated
 
-from flask import Flask, request, redirect, session, url_for, render_template
+from flask import Flask, request, redirect
 
 app = Flask(__name__)
-app.secret_key = os.urandom(50)
 
-# Local development
-# Initialize environment variables
 #load_dotenv()
 
-# Sets up Firebase's Realtime Database
+# Set up Firebase's Realtime Database
 cred = credentials.Certificate('credentials.json')
-default_app = firebase_admin.initialize_app(cred, {
-	'databaseURL': os.environ["FIREBASE_DATABASE_URL"]
-	})
+default_app = firebase_admin.initialize_app(
+        cred, 
+        {'databaseURL': os.environ["FIREBASE_DATABASE_URL"]}
+    )
 
 ref = db.reference("/")
-
-client_id = os.environ.get("TWITTER_CLIENT_ID")
-client_secret = os.environ.get("TWITTER_CLIENT_SECRET")
-auth_url = "https://twitter.com/i/oauth2/authorize"
-token_url = "https://api.twitter.com/2/oauth2/token"
-redirect_uri = os.environ.get("TWITTER_REDIRECT_URI")
-
-scopes = ["tweet.read", "tweet.write", "users.read", "offline.access"]
 
 code_verifier = create_code_verifier()
 code_challenge = create_code_challenge(code_verifier)
 
 @app.route("/")
-def demo():
-    global oauth
-    oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, scope=scopes)
-    authorization_url, state = oauth.authorization_url(
-        auth_url, 
-        code_challenge=code_challenge, 
-        code_challenge_method="S256"
-    )
-    session["oauth_state"] = state
-    return redirect(authorization_url)
+def authorization():
+    # Get authorization URL
+    req = requests.Request(
+        "GET",
+        "https://twitter.com/i/oauth2/authorize",
+        params={
+            "response_type": "code",
+            "client_id": os.environ["TWITTER_CLIENT_ID"],
+            "redirect_uri": os.environ["TWITTER_REDIRECT_URI"],
+            "scope": "tweet.read tweet.write users.read offline.access",
+            "state": "state",
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
+        },
+    ).prepare()
+
+    # Redirect user to authorization URL
+    return redirect(req.url)
 
 
 @app.route("/oauth/callback", methods=["GET"])
 def callback():
-    if session["oauth_state"] != request.args["state"]:
-        return abort(403)
-
-    token = oauth.fetch_token(
-        token_url=token_url,
-        client_secret=client_secret,
-        code=request.args["code"],
-        code_verifier=code_verifier
+    # Get access token and refresh token from bot's Twitter account
+    token = requests.request(
+        "POST",
+        "https://api.twitter.com/2/oauth2/token",
+        params={
+            "code": request.args["code"],
+            "grant_type": "authorization_code",
+            "redirect_uri": os.environ["TWITTER_REDIRECT_URI"],
+            "code_verifier": code_verifier,
+        },
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        auth=(os.environ["TWITTER_CLIENT_ID"], os.environ["TWITTER_CLIENT_SECRET"]),
     )
 
-    tweet = create_tweet(get_weather())
-    payload = {"text": "{}".format(tweet)}
-    ref.set(json.dumps(token))
-    response = post_tweet(payload, token).json()
-    return response
-    
+    # Store tokens in the database
+    ref.set(token.json())
+    return token.json()
 
-if __name__ == "__main__":
+
+if __name__=="__main__":
     app.run()

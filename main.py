@@ -1,5 +1,4 @@
 import requests
-import requests_oauthlib
 
 import json
 import os
@@ -21,15 +20,14 @@ from twitter import create_tweet, post_tweet
 with open("credentials.json", "w") as file:
     file.write(os.environ["FIREBASE_CREDENTIALS"])
 
-# Authenticate Firebase's Realtime Database
+# Set up Firebase's Realtime Database
 cred = credentials.Certificate('credentials.json')
-default_app = firebase_admin.initialize_app(cred, {
-	'databaseURL': os.environ["FIREBASE_DATABASE_URL"]
-	})
+default_app = firebase_admin.initialize_app(
+    cred, 
+    {'databaseURL': os.environ["FIREBASE_DATABASE_URL"]},
+    )
 
-# Open Firebase's Realtime Database
 ref = db.reference("/")
-
 
 # Post a tweet containing the current weather conditions in Tucano, Bahia
 def main():
@@ -38,16 +36,25 @@ def main():
     return post_tweet(payload, refresh_token())
 
 
-# Refresh bot's twitter profile access token
+# Return new bot's Twitter account access token
 def refresh_token():
-    session = requests_oauthlib.OAuth2Session()
-    token = session.refresh_token(
-        token_url="https://api.twitter.com/2/oauth2/token",
+    # Refresh access token
+    token = requests.request(
+        "POST",
+        "https://api.twitter.com/2/oauth2/token",
+        params={
+            "refresh_token": ref.get()["refresh_token"],
+            "grant_type": "refresh_token",
+        },
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
         auth=(os.environ["TWITTER_CLIENT_ID"], os.environ["TWITTER_CLIENT_SECRET"]),
-        refresh_token=json.loads(ref.get())["refresh_token"]
     )
-    ref.set(json.dumps(token))
-    return token
+
+    # Store new access token in the database
+    ref.set(token.json())
+    return token.json()
 
 
 if __name__=="__main__":
