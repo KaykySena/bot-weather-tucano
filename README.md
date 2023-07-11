@@ -1,9 +1,9 @@
 # bot-weather-tucano
 [Tempo em Tucano](https://twitter.com/tempotucano) is a an automated Twitter profile who updates you about the weather in Tucano, a small town in the countryside of Brazil, every hour.
 
-<center>
+<p align="center">
     <img src="assets/tempotucano.png" alt="asdasd">
-</center>
+</p>
 
 ## Summary
 In case you want to start exploring the Twitter API, the authentication process is the first step, so, I built a web application using Flask, a simple Python web framework, to fetch an access token for the bot's Twitter profile via [OAuth 2.0 Authorization Code Flow with PKCE](https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token). 
