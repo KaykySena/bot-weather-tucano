@@ -24,7 +24,7 @@ def get_emoji(weather, current_time):
         "Clouds": "☁️"
     }
 
-    isDay = time.gmtime(current_time) in range(6, 18)
+    isDay = time.gmtime(current_time).tm_hour in range(6, 18)
 
     if weather in mapping.keys():
         return mapping[weather]
