@@ -3,7 +3,7 @@ cachetools==5.3.1
 certifi==2023.7.22
 cffi==1.15.1
 charset-normalizer==3.2.0
-cryptography==41.0.2
+cryptography==41.0.4
 firebase-admin==6.2.0
 google-api-core==2.11.1
 google-api-python-client==2.92.0
