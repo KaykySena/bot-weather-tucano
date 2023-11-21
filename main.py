@@ -43,7 +43,7 @@ def refresh_token():
         "POST",
         "https://api.twitter.com/2/oauth2/token",
         params={
-            "refresh_token": json.loads(ref.get())["refresh_token"],
+            "refresh_token": ref.get()["refresh_token"],
             "grant_type": "refresh_token",
         },
         headers={
